@@ -35,6 +35,16 @@ m9.set_immutable()
 
 highest_2 = defaultdict(int,{(1,m1):1,(2,m2):-1,(3,m3):1,(4,m4):-1,(5,m5):1,(7,m7):-1,(9,m9):1})
 
+#Find the labels of the functions \phi(m,i), where m is in ]r_k,r]\cap e(i) U {t_k|k in I}, in terms of the D's
+#Note that the last n of these correspond to the frozen variables
+def func_labels():
+    global w_0, w_lower_p,n
+    nonexch = [w_0.rindex(str(i))+1 for i in range(1,n+1)]
+    mutable = [i for i in range(len(w_lower_p)+1,len(w_0)+1) if i not in nonexch]
+    frozen = [-n]+[w_lower_p.rindex(str(i))+1 for i in range(1,n)]        
+    return mutable+frozen
+
+
 def commutator(a,b):
     return a*b-b*a
 
@@ -202,6 +212,7 @@ def find_occurrence(a,b):
 def funs():
     highest_vecs = [defaultdict(int,{(highest_1,):1}),highest_2,defaultdict(int,{(highest_1,highest_1_2):1}),defaultdict(int,{('1','2','3','4'):1}),defaultdict(int,{('1','2','3'):1}),defaultdict(int,{('1','2'):1}),defaultdict(int,{('1',):1})]
     funs = []
+    #for m in func_labels(): #takes a long time to run
     for m in [37]:
         uleqm = None
         irrep_index = None
@@ -226,7 +237,7 @@ def funs():
         #now current should be the starting weight/vector pair 
         #step 3: figure out expressions for these functions evaluated on the lusztig torus
         finished_paths = []
-        print(curr[0])
+        #print(curr[0])
         unfinished_paths = [(curr[1],w_upper_p,(),())]
         #unfinished_paths = [(curr[1],())]
         while len(unfinished_paths) != 0:
@@ -235,11 +246,11 @@ def funs():
                 moves = mat_moves(current[0])
                 if len(moves) == 0: #this should be a lowest weight
                     if len(current[0].keys())>1:
-                        print([(t1.dict(),t2.dict()) for (t1,t2) in current[0].keys()])
+                        #print([(t1.dict(),t2.dict()) for (t1,t2) in current[0].keys()])
                         #temp = list(current[0].keys())
                         #print(temp[0][0]==temp[1][1] and temp[0][1]==temp[1][0])
                         continue
-                    print(current[3])
+                    #print(current[3])
                     finished_paths.append((current[0],current[2])) #change this back later
                 for down in moves:
                     positions = find_occurrence(str(down[1]),current[1])
@@ -249,7 +260,7 @@ def funs():
                 moves = find_moves(current[0])
                 if len(moves) == 0: #this should be a lowest weight
                     if len(current[0].keys())>1:
-                        print(m,current[0],"skipped")
+                        #print(m,current[0],"skipped")
                         continue
                     finished_paths.append((current[0],current[2]))
                 for down in moves:
@@ -265,7 +276,7 @@ def funs():
                     for pos in positions:
                         unfinished_paths.append((down[0],current[1][pos:],current[2]+(str(-pos),)))
             else:
-                print(irrep_index, m)
+                #print(irrep_index, m)
         funs.append((m,irrep_index,finished_paths))
     #step 4: evaluate the functions on the lusztig torus
     polys = []
@@ -352,13 +363,10 @@ def plucker():
     return polys
 
 #print(funs())
-#myfile = open("plucker",'w')
-#myfile.write("R=QQ[a_1..a_27]\n")
 
-print("R=QQ[a_1..a_27]")
+print("R=QQ[reverse(a_1..a_27)]")
 for (label,func) in plucker():
     print('p_'+str(label)+'=',func)
-    #myfile.write('p_'+str(label)+'=')
-    #myfile.write(func+'\n')
-#myfile.close()
-#print(funs())
+
+for f in funs():
+    print("f_{}={}".format(f[0],f[2]))

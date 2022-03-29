@@ -287,11 +287,3 @@ def testing(vect):
         print(i+1,std_temp, adj_data, new_weight)
     return outputs
 
-#Find the labels of the functions \phi(m,i), where m is in ]r_k,r]\cap e(i) U {t_k|k in I}, in terms of the D's
-#Note that the last n of these correspond to the frozen variables
-def func_labels():
-    global w_0, w_lower_p,n
-    nonexch = [w_0.rindex(str(i))+1 for i in range(1,n+1)]
-    mutable = [i for i in range(len(w_lower_p)+1,len(w_0)+1) if i not in nonexch]
-    frozen = [-n]+[w_lower_p.rindex(str(i))+1 for i in range(1,n)]        
-    return mutable+frozen

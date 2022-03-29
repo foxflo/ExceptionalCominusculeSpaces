@@ -7,7 +7,7 @@ w_lower_p = '12314312435423451342'
 w_upper_p = '6542345613452431'
 """
 
-#dual to above, this uses E6/P1
+#dual to above, this choice is compatible with P1\E6. 
 w_0 = '625645624534254365421342543165432456'
 w_lower_p = '62564562453425436542'
 w_upper_p = '1342543165432456'
@@ -245,6 +245,7 @@ def funs():
     return polys
 
 """
+#The following code is for the dual E6/P6. It requires a few changes in the above helper code to work.
 #return the functions phi(m,i) in the form of polynomials in the parameters of the lusztig torus
 def funs():
     highest_vecs = [defaultdict(int,{('1',):1}),find_highest()*(1/2),defaultdict(int,{('1','2'):1}),defaultdict(int,{('1','2','3'):1}),defaultdict(int,{('26','27'):1}),defaultdict(int,{('27',):1})]
@@ -370,15 +371,16 @@ def plucker():
             temp.append((exponent,coeff))
         polys.append((label,to_polynomial(temp)))
     return polys
-"""
+
+
+#printing plucker coordinates separately from 
 print("R=QQ[reverse(a_1..a_16)]")
 for poly in plucker():
     print("p_{}={}".format(poly[0], poly[1]))
-print("I = ideal(apply(2..27,i->p_i))")
-"""
+#print("I = ideal(apply(2..27,i->p_i))")
 
-derp = funs()
+#print out expansion of GLS cluster variables on torus
+for f in funs():
+    print("f_{}={}".format(f[0],f[2]))
 
-for d in derp:
-    print("f_{}={}".format(d[0],d[2]))
 #print("apply({-6, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 29, 30, 31},i->f_i%I)")
