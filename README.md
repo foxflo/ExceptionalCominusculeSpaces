@@ -1,5 +1,5 @@
 # ExceptionalCominusculeSpaces
-Accompanying code for the paper "Mirror Symmetry for the Exceptional Cominuscule Homogeneous Spaces"
+Accompanying code for the paper "Mirror Symmetry for the Exceptional Cominuscule Homogeneous Spaces" by Peter Spacek and myself.
 
 This sage code performs Lusztig torus expansions of generalized minors (including usual Plucker coordinates) for the exceptional (co)minuscule spaces of types E6 and E7. The small Macaulay2 script uses these results to express generalized minors as polynomials in Plucker coordinates. 
 
