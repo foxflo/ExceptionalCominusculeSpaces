@@ -1,31 +1,30 @@
 from collections import defaultdict
 from math import factorial
 
-"""
 w_0 = '123143124354234513426542345613452431'
 w_lower_p = '12314312435423451342'
 w_upper_p = '6542345613452431'
-"""
 
-#dual to above, this choice is compatible with P1\E6. 
+"""
+#dual to above, this uses E6/P1
 w_0 = '625645624534254365421342543165432456'
 w_lower_p = '62564562453425436542'
 w_upper_p = '1342543165432456'
-
-
-cartan = [[2,0,-1,0,0,0],[0,2,0,-1,0,0],[-1,0,2,-1,0,0],[0,-1,-1,2,-1,0],[0,0,0,-1,2,-1],[0,0,0,0,-1,2]]
-std_rep = {1:defaultdict(int,{1:2,11:13,14:16,17:18,19:20,21:23}),2:defaultdict(int,{4:5,6:7,8:10,19:21,20:23,22:24}),3:defaultdict(int,{2:3,9:11,12:14,15:17,20:22,23:24}),4:defaultdict(int,{3:4,7:9,10:12,17:19,18:20,24:25}),5:defaultdict(int,{4:6,5:7,12:15,14:17,16:18,25:26}),6:defaultdict(int,{6:8,7:10,9:12,11:14,13:16,26:27})} #1st fundamental irreducible representation
-std_dual = {x:defaultdict(int, {b:a for (a,b) in y.items()}) for (x,y) in std_rep.items()} #sixth fundamental representation
+"""
 n=6
-matrices = [matrix(27,27,defaultdict(int,{(b-1,a-1):1 for (a,b) in simple[1].items()})) for simple in sorted(std_rep.items())] #adjoint, defined from the first fundamental rep
+cartan = [[2,0,-1,0,0,0],[0,2,0,-1,0,0],[-1,0,2,-1,0,0],[0,-1,-1,2,-1,0],[0,0,0,-1,2,-1],[0,0,0,0,-1,2]]
+std_dual = {1:defaultdict(int,{1:2,11:13,14:16,17:18,19:20,21:23}),2:defaultdict(int,{4:5,6:7,8:10,19:21,20:23,22:24}),3:defaultdict(int,{2:3,9:11,12:14,15:17,20:22,23:24}),4:defaultdict(int,{3:4,7:9,10:12,17:19,18:20,24:25}),5:defaultdict(int,{4:6,5:7,12:15,14:17,16:18,25:26}),6:defaultdict(int,{6:8,7:10,9:12,11:14,13:16,26:27})} #1st fundamental irreducible representation
+std_rep = {x:defaultdict(int, {b:a for (a,b) in y.items()}) for (x,y) in std_dual.items()} #sixth fundamental representation
+matrices = [matrix(27,27,defaultdict(int,{(b-1,a-1):1 for (a,b) in simple[1].items()})) for simple in sorted(std_dual.items())] #adjoint, defined from the first fundamental rep
 
 #Find the labels of the functions \phi(m,i), where m is in ]r_k,r]\cap e(i) U {t_k|k in I}, in terms of the D's
 #Note that the last n of these correspond to the frozen variables
 def func_labels():
     nonexch = [w_0.rindex(str(i))+1 for i in range(1,n+1)]
     mutable = [i for i in range(len(w_lower_p)+1,len(w_0)+1) if i not in nonexch]
-    frozen = [-1]+[w_lower_p.rindex(str(i))+1 for i in range(2,n+1)]        
-    return mutable+frozen
+    frozen = [-6]+[w_lower_p.rindex(str(i))+1 for i in range(1,n)]        
+    #return mutable+frozen
+    return frozen
 
 #return the simple root alpha_i in the lie algebra as a function on the basis vectors of the 6th fundamental rep
 def root_vec(i):
@@ -151,6 +150,7 @@ def find_highest():
         mats.append(start)
     return mats[-1]
 
+"""
 #compute generalized minors for E6/P1
 def funs():
     lowest_vecs = [defaultdict(int,{('27',):1}),(find_highest()*(1/2)).transpose(),defaultdict(int,{('26','27'):1}),defaultdict(int,{('1','2','3'):1}),defaultdict(int,{('1','2'):1}),defaultdict(int,{('1',):1})]
@@ -243,13 +243,11 @@ def funs():
                 temp.append((exponent,coeff))
             polys.append((phi_idx,irrep_idx,to_polynomial(temp)))
     return polys
-
 """
-#The following code is for the dual E6/P6. It requires a few changes in the above helper code to work.
+
 #return the functions phi(m,i) in the form of polynomials in the parameters of the lusztig torus
 def funs():
     highest_vecs = [defaultdict(int,{('1',):1}),find_highest()*(1/2),defaultdict(int,{('1','2'):1}),defaultdict(int,{('1','2','3'):1}),defaultdict(int,{('26','27'):1}),defaultdict(int,{('27',):1})]
-    print(highest_vecs[1])
     funs = []
     for m in func_labels():
         vec = None
@@ -267,9 +265,9 @@ def funs():
             next_vec = curr[1]
             for i in range(curr[0][int(transp)-1]):
                 if irrep_index-1 in [0,2,3]:
-                    next_vec = root_action(int(transp),next_vec)
-                elif irrep_index-1 in [4,5]:
                     next_vec = dual_action(int(transp),next_vec)
+                elif irrep_index-1 in [4,5]:
+                    next_vec = root_action(int(transp),next_vec)
                 else:
                     next_vec = commutator(matrices[int(transp)-1],next_vec)
             curr = (next_weight, next_vec)
@@ -279,13 +277,12 @@ def funs():
             vec = defaultdict(int,{x:1 for (x,y) in curr[1].items()})
         #now current should be the starting weight/vector pair 
         #step 3: figure out expressions for these functions evaluated on the lusztig torus
-        print(m,irrep_index,curr)
         finished_paths = []
         unfinished_paths = [(vec,)+(w_upper_p,)+((),())]
         while len(unfinished_paths) != 0:
             current = unfinished_paths.pop()
             if irrep_index-1 in [0,2,3]:
-                moves = find_moves(current[0])
+                moves = dual_moves(current[0])
                 if len(moves) == 0: #this should be a lowest weight
                     if len(current[0].keys())>1:
                         #print(m,current[0],"skipped")
@@ -296,7 +293,7 @@ def funs():
                     for pos in positions:
                         unfinished_paths.append((down[0],current[1][pos:],current[2]+(str(-pos),)))
             elif irrep_index-1 in [4,5]:
-                moves = dual_moves(current[0])
+                moves = find_moves(current[0])
                 if len(moves) == 0: #this should be a lowest weight
                     if len(current[0].keys())>1:
                         #print(m,current[0],"skipped")
@@ -317,11 +314,9 @@ def funs():
                     for pos in positions:
                         unfinished_paths.append((down[0],current[1][pos:],current[2]+(str(-pos),)))
         funs.append((m,irrep_index,finished_paths))
-    print(funs)
     #step 4: evaluate the functions on the lusztig torus
     polys = []
     for (phi_idx,irrep_idx,fun) in funs:
-        print(fun)
         temp = []
         if not isinstance(fun[0][0],defaultdict):
             for term in fun:
@@ -340,7 +335,7 @@ def funs():
                 temp.append((exponent,coeff))
             polys.append((phi_idx,irrep_idx,to_polynomial(temp)))
     return polys
-"""
+
 
 def plucker():
     funs = []
@@ -348,10 +343,10 @@ def plucker():
         vec = defaultdict(int,{(str(i),):1}) 
         #step 3: figure out expressions for these functions evaluated on the lusztig torus
         finished_paths = []
-        unfinished_paths = [(vec,)+(w_upper_p[::-1],)+((),)]
+        unfinished_paths = [(vec,)+(w_upper_p,)+((),)]
         while len(unfinished_paths) != 0:
             current = unfinished_paths.pop()
-            moves = dual_moves(current[0])
+            moves = find_moves(current[0])
             if len(moves) == 0: #this should be a lowest weight
                 finished_paths.append((current[0],current[2]))
             for down in moves:
@@ -372,15 +367,9 @@ def plucker():
         polys.append((label,to_polynomial(temp)))
     return polys
 
-
-#printing plucker coordinates separately from 
 print("R=QQ[reverse(a_1..a_16)]")
 for poly in plucker():
     print("p_{}={}".format(poly[0], poly[1]))
-#print("I = ideal(apply(2..27,i->p_i))")
-
-#print out expansion of GLS cluster variables on torus
+    
 for f in funs():
     print("f_{}={}".format(f[0],f[2]))
-
-#print("apply({-6, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 29, 30, 31},i->f_i%I)")
